@@ -1,0 +1,9 @@
+.env
+.env.backup
+.env.production
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
