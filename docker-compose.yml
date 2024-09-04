@@ -56,7 +56,7 @@ services:
     volumes:
       - ./backend-storage:/var/www/html/storage
     ports:
-      - "8000:8000"
+      - "8000:80"
     networks:
       - helium
     depends_on:
