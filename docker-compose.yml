@@ -14,15 +14,13 @@ services:
     image: mariadb
     env_file: .env
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
     volumes:
       - mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     networks:
       - helium
     healthcheck:
@@ -36,8 +34,6 @@ services:
     image: valkey/valkey:alpine
     volumes:
       - valkey-data:/data
-    ports:
-      - "6379:6379"
     networks:
       - helium
     healthcheck:
@@ -50,13 +46,11 @@ services:
     image: helium-backend
     env_file: .env
     environment:
-      - VIRTUAL_HOST=${BACKEND_DOMAIN}
-      - LETSENCRYPT_HOST=${BACKEND_DOMAIN}
+      - VIRTUAL_HOST=${APP_DOMAIN}
+      - LETSENCRYPT_HOST=${APP_DOMAIN}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
     volumes:
       - ./backend-storage:/var/www/html/storage
-    ports:
-      - "8000:80"
     networks:
       - helium
     depends_on:
@@ -81,8 +75,6 @@ services:
       - VIRTUAL_HOST=${FRONTEND_DOMAIN}
       - LETSENCRYPT_HOST=${FRONTEND_DOMAIN}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-    ports:
-      - "3000:3000"
     networks:
       - helium
     depends_on:
@@ -90,14 +82,14 @@ services:
 
   nginx-proxy:
     image: jwilder/nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - certs:/etc/nginx/certs:ro
       - vhostd:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       - helium
 
