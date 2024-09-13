@@ -1,49 +1,11 @@
 volumes:
-  mysql-data:
-  valkey-data:
   certs:
   vhostd:
   html:
 
-networks:
-  helium:
-    driver: bridge
-
 services:
-  mysql:
-    image: mariadb
-    env_file: .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    volumes:
-      - mysql-data:/var/lib/mysql
-    networks:
-      - helium
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      start_period: 10s
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
-  redis:
-    image: valkey/valkey:alpine
-    volumes:
-      - valkey-data:/data
-    networks:
-      - helium
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      interval: 1s
-      timeout: 3s
-      retries: 5
-
   backend:
-    image: helium-backend
+    image: ghcr.io/freuwort/helium-backend:latest
     env_file: .env
     environment:
       - VIRTUAL_HOST=${APP_DOMAIN}
@@ -58,7 +20,7 @@ services:
       - redis
 
   backend-queue:
-    image: helium-backend
+    image: ghcr.io/freuwort/helium-backend:latest
     env_file: .env
     entrypoint: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
     volumes:
@@ -69,12 +31,16 @@ services:
       - backend
 
   frontend:
-    image: helium-frontend
+    image: ghcr.io/freuwort/helium-frontend:latest
     env_file: .env
     environment:
       - VIRTUAL_HOST=${FRONTEND_DOMAIN}
       - LETSENCRYPT_HOST=${FRONTEND_DOMAIN}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+      - NUXT_PUBLIC_BACKEND_URL=${APP_URL}
+      - NUXT_PUBLIC_FRONTEND_URL=${FRONTEND_URL}
+      - NUXT_PUBLIC_WEBSITE_URL=${WEBSITE_URL}
+      - NUXT_PUBLIC_SCREENS_URL=${SCREENS_URL}
     networks:
       - helium
     depends_on:

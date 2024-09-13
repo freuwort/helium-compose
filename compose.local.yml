@@ -1,0 +1,39 @@
+services:
+  backend:
+    image: helium-backend
+    env_file: .env
+    volumes:
+      - ./backend-storage:/var/www/html/storage
+    ports:
+      - "8000:80"
+    networks:
+      - helium
+    depends_on:
+      - mysql
+      - redis
+
+  backend-queue:
+    image: helium-backend
+    env_file: .env
+    entrypoint: ["php", "/var/www/html/artisan", "queue:work", "--tries=3"]
+    volumes:
+      - ./backend-storage:/var/www/html/storage
+    networks:
+      - helium
+    depends_on:
+      - backend
+
+  frontend:
+    image: helium-frontend
+    env_file: .env
+    environment:
+      - NUXT_PUBLIC_BACKEND_URL=${APP_URL}
+      - NUXT_PUBLIC_FRONTEND_URL=${FRONTEND_URL}
+      - NUXT_PUBLIC_WEBSITE_URL=${WEBSITE_URL}
+      - NUXT_PUBLIC_SCREENS_URL=${SCREENS_URL}
+    ports:
+      - "3000:3000"
+    networks:
+      - helium
+    depends_on:
+      - backend

@@ -1,0 +1,45 @@
+volumes:
+  mysql-data:
+  valkey-data:
+
+networks:
+  helium:
+    driver: bridge
+
+services:
+  mysql:
+    image: mariadb
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - helium
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      start_period: 10s
+      interval: 10s
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: valkey/valkey:alpine
+    volumes:
+      - valkey-data:/data
+    networks:
+      - helium
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
