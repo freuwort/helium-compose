@@ -16,8 +16,10 @@ services:
     networks:
       - helium
     depends_on:
-      - mysql
-      - redis
+      mysql: 
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   backend-queue:
     image: ghcr.io/freuwort/helium-backend:latest
