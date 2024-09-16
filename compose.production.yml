@@ -20,6 +20,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    restart: always
 
   backend-queue:
     image: ghcr.io/freuwort/helium-backend:latest
@@ -31,6 +32,7 @@ services:
       - helium
     depends_on:
       - backend
+    restart: always
 
   frontend:
     image: ghcr.io/freuwort/helium-frontend:latest
@@ -47,6 +49,7 @@ services:
       - helium
     depends_on:
       - backend
+    restart: always
 
   nginx-proxy:
     image: jwilder/nginx-proxy
@@ -60,6 +63,7 @@ services:
       - "443:443"
     networks:
       - helium
+    restart: always
 
   acme-companion:
     image: nginxproxy/acme-companion
@@ -74,3 +78,4 @@ services:
       - helium
     depends_on:
       - nginx-proxy
+    restart: always

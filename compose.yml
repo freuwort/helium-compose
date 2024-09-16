@@ -26,6 +26,7 @@ services:
       interval: 10s
       timeout: 20s
       retries: 10
+    restart: always
 
   redis:
     image: valkey/valkey:alpine
@@ -38,8 +39,12 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+    restart: always
 
   watchtower:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - helium
+    restart: always
