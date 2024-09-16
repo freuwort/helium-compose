@@ -2,6 +2,7 @@ volumes:
   certs:
   vhostd:
   html:
+  acme:
 
 services:
   backend:
@@ -71,9 +72,8 @@ services:
       - nginx-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - certs:/etc/nginx/certs
-      - vhostd:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:rw
+      - acme:/etc/acme.sh
     networks:
       - helium
     depends_on:

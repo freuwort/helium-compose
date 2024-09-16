@@ -47,4 +47,5 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - helium
+    command: --cleanup --interval 60
     restart: always
